@@ -1,25 +1,26 @@
+import os
 import json
 
 import requests
 
-from utils.conf import load_json
-
-conf = load_json("./conf.json")
-
-
-async def async_write():
-    write()
+environ = os.environ
+authorization = environ.get('authorization')
+database_id = environ.get('database_id')
 
 
-def write():
+async def async_write(text):
+    write(text)
+
+
+def write(text):
     headers = {
-        'Authorization': f'Bearer {conf.get("authorization")}',
+        'Authorization': f'Bearer {authorization}',
         'Content-Type': 'application/json',
         'Notion-Version': '2021-08-16',
     }
 
     data = {
-        "parent": {"database_id": conf.get("database_id")},
+        "parent": {"database_id": database_id},
         "properties": {
             "Name": {
                 "title": [
@@ -40,7 +41,7 @@ def write():
                         {
                             "type": "text",
                             "text": {
-                                "content": "test"
+                                "content": text
                             }
                         }
                     ]

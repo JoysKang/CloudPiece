@@ -1,32 +1,48 @@
-import asyncio
+import os
 
 from fastapi import FastAPI
-from utils.write import write, async_write
+
+from utils.write import write
+from aiogram import Bot, types
+from aiogram.dispatcher import Dispatcher
 
 app = FastAPI()
 
-# 异步函数路径以 /async 开头
+environ = os.environ
+API_TOKEN = environ.get("token")
+bot = Bot(token=API_TOKEN)
+dp = Dispatcher(bot)
+
+# webhook settings
+WEBHOOK_HOST = environ.get("domain")
+WEBHOOK_PATH = environ.get("path")
+WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
 
 
-@app.get("/write")
-def write():
-    """同步写入"""
-    write()
-    return {"message": "Write success"}
+@app.get("/startup")
+async def startup():
+    await bot.set_webhook(WEBHOOK_URL)
+    return {"message": "Success"}
 
 
-@app.get("/async/write")
-def write():
-    """异步写入(腾讯云函数暂不支持异步调用)"""
-    asyncio.create_task(async_write())
-    return {"message": "Write success"}
+@app.get("/shutdown")
+async def shutdown():
+    await bot.delete_webhook()
+
+    await dp.storage.close()
+    await dp.storage.wait_closed()
+
+    return {"message": "Success"}
 
 
-@app.get("/async")
-async def async_root():
-    return {"message": "Hello World"}
+@dp.message_handler()
+async def echo(message: types.Message):
+    write(message.text)
+    await message.answer(message.text)
+
+    return {"message": "Success"}
 
 
 @app.get("/")
 def root():
-    return {"message": "Hello World"}
+    return {"message": "Success"}
