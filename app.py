@@ -1,10 +1,12 @@
 import os
 
 from fastapi import FastAPI
+from pydantic import BaseModel, Field
+from aiogram import Bot
+from aiogram.dispatcher import Dispatcher
 
 from utils.write import write
-from aiogram import Bot, types
-from aiogram.dispatcher import Dispatcher
+
 
 app = FastAPI()
 
@@ -13,32 +15,19 @@ API_TOKEN = environ.get("token")
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 
-# webhook settings
-WEBHOOK_HOST = environ.get("domain")
-WEBHOOK_PATH = environ.get("path")
-WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
+
+class Message(BaseModel):
+    message_id: int
+    from_field: dict = Field(alias='from')
+    chat: dict
+    date: int
+    text: str
 
 
-@app.get("/startup")
-async def startup():
-    await bot.set_webhook(WEBHOOK_URL)
-    return {"message": "Success"}
-
-
-@app.get("/shutdown")
-async def shutdown():
-    await bot.delete_webhook()
-
-    await dp.storage.close()
-    await dp.storage.wait_closed()
-
-    return {"message": "Success"}
-
-
-@dp.message_handler()
-async def echo(message: types.Message):
+@app.post("/echo")
+async def echo(message: Message):
     write(message.text)
-    await message.answer(message.text)
+    await bot.send_message(message.chat.get("id"), "已存储")
 
     return {"message": "Success"}
 
