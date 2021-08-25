@@ -1,17 +1,16 @@
-import os
-
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 from aiogram import Bot
 from aiogram.dispatcher import Dispatcher
 
 from utils.write import write
+from utils.conf import load_json
 
 
 app = FastAPI()
 
-environ = os.environ
-API_TOKEN = environ.get("token")
+conf = load_json("./conf.json")
+API_TOKEN = conf.get("token")
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 

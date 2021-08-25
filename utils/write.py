@@ -1,11 +1,12 @@
-import os
 import json
 
 import requests
 
-environ = os.environ
-authorization = environ.get('authorization')
-database_id = environ.get('database_id')
+from utils.conf import load_json
+
+conf = load_json("./conf.json")
+authorization = conf.get('authorization')
+database_id = conf.get('database_id')
 
 
 async def async_write(text):
