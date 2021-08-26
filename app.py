@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from pydantic import BaseModel, Field
+from starlette.requests import Request
 from aiogram import Bot
 from aiogram.dispatcher import Dispatcher
 
@@ -15,18 +15,54 @@ bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 
 
-class Message(BaseModel):
-    message_id: int
-    from_field: dict = Field(alias='from')
-    chat: dict
-    date: int
-    text: str
-
-
 @app.post("/echo")
-async def echo(message: Message):
-    write(message.text)
-    await bot.send_message(message.chat.get("id"), "已存储")
+async def echo(request: Request):
+    """
+    :param request: {
+        "update_id": 103xxx,
+        "message": {
+            "message_id": 56,
+            "from": {
+                "id": 682xxx,
+                "is_bot": False,
+                "first_name": "F",
+                "last_name": "joys",
+                "username": "joyskaren",
+                "language_code": "zh-hans"
+            },
+            "chat": {
+                "id": 682xxx,
+                "first_name": "F",
+                "last_name": "joys",
+                "username": "joyskaren",
+                "type": "private"
+            },
+            "date": 1629899314,
+            "text": "test2",
+            "document": {
+                "file_name": "2021-08-26.201916.png",
+                "mime_type": "image/png",
+                "thumb": {
+                    "file_id": "AAMCBQADGQEAA1BhJ4eDF8k4_M90jfPwGRkEkrHGyAACbQMAAnF2QVX5iT3KiDyKNgEAB20AAyAE",
+                    "file_unique_id": "AQADbQMAAnF2QVVy",
+                    "file_size": 6346,
+                    "width": 320,
+                    "height": 97
+                },
+                "file_id": "BQACAgUAAxkBAANQYSeHgxfJOPzPdI3z8BkZBJKxxsgAAm0DAAJxdkFV-Yk9yog8ijYgBA",
+                "file_unique_id": "AgADbQMAAnF2QVU",
+                "file_size": 36459
+            },
+            "caption": "图片"
+        }
+    }
+    :return:
+    """
+    body = await request.json()
+    print(body)
+    message = body["message"]
+    write(message.get("text"))
+    await bot.send_message(message.get("chat").get("id"), "已存储")
 
     return {"message": "Success"}
 
