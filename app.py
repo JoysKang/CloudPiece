@@ -67,6 +67,13 @@ async def echo(request: Request):
     return {"message": "Success"}
 
 
+@app.get("/auth")
+async def root(request: Request):
+    """授权回调"""
+    print(dict(request.query_params.multi_items()))
+    return {"message": "Success"}
+
+
 @app.get("/")
 def root():
     return {"message": "Success"}
