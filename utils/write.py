@@ -52,6 +52,9 @@ def write(text):
     }
 
     response = requests.post('https://api.notion.com/v1/pages', headers=headers, data=json.dumps(data))
-    print(response.status_code)
+    if response.status_code == 200:
+        return True
+
+    return False
 
 

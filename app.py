@@ -61,8 +61,8 @@ async def echo(request: Request):
     body = await request.json()
     print(body)
     message = body["message"]
-    write(message.get("text"))
-    await bot.send_message(message.get("chat").get("id"), "已存储")
+    if write(message.get("text")):
+        await bot.send_message(message.get("chat").get("id"), "已存储")
 
     return {"message": "Success"}
 
