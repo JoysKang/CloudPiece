@@ -3,14 +3,14 @@ from starlette.requests import Request
 from aiogram import Bot
 from aiogram.dispatcher import Dispatcher
 
-from utils.write import write
+from utils.write import write, update_or_create, get_data
 from utils.conf import load_json
 
 
 app = FastAPI()
 
 conf = load_json("./conf.json")
-API_TOKEN = conf.get("token")
+API_TOKEN = conf.get("telegram_token")
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 
@@ -59,12 +59,14 @@ async def echo(request: Request):
     :return:
     """
     body = await request.json()
-    print(body)
     message = body["message"]
-    if write(message.get("text")):
-        await bot.send_message(message.get("chat").get("id"), "已存储")
+    database_id, code = get_data(message["chat"])
 
-    return {"message": "Success"}
+    if write(database_id, code, message.get("text")):
+        await bot.send_message(message.get("chat").get("id"), "已存储")
+        return {"message": "Success"}
+
+    return {"message": "Failure"}
 
 
 @app.get("/auth")
