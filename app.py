@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from starlette.requests import Request
-from aiogram import Bot
+from aiogram import Bot, Dispatcher, executor, types
 from aiogram.dispatcher import Dispatcher
 
 from utils.notion import write, update_or_create, get_data
@@ -60,10 +60,26 @@ async def echo(request: Request):
     """
     body = await request.json()
     message = body["message"]
-    database_id, code = get_data(message["chat"])
+    chat_id = message.get("chat").get("id")
+    text = message.get("text")
 
-    if write(database_id, code, message.get("text")):
-        await bot.send_message(message.get("chat").get("id"), "已存储")
+    if text.startswith("/"):  # 以 / 开头，默认为指令
+        if text == "/auth":  # 授权
+            await bot.send_message(chat_id, "授权地址: ")
+
+        elif text.startswith("/id"):  # 数据库id(以空格拆分)
+            await bot.send_message(chat_id, "数据库id")
+
+        elif text == "/unbind":  # 解绑
+            await bot.send_message(chat_id, "解绑")
+        else:
+            await bot.send_message(chat_id, "无法识别的指令，请使用 /auth 进行授权，使用 /id 进行数据库绑定，使用 /unbind 进行解绑")
+
+        return {"message": "Success"}
+
+    database_id, code = get_data(chat_id)
+    if write(database_id, code, text):
+        await bot.send_message(chat_id, "已存储")
         return {"message": "Success"}
 
     return {"message": "Failure"}

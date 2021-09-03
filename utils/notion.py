@@ -62,9 +62,8 @@ def update_or_create(chat=None):
     pass
 
 
-def get_data(chat=None):
+def get_data(chat_id=None):
     """根据 chat_id 获取 database_id、code"""
-    chat_id = chat.get("id")
     _data = '{ "filter": { "or": [ { "property": "ChatId", "rich_text": {"equals": "' + str(chat_id) + '"}} ] } }'
     _data = _data.encode()
 
