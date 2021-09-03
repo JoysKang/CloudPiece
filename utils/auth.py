@@ -1,4 +1,0 @@
-
-
-def auth():
-    pass

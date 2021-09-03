@@ -3,7 +3,7 @@ from starlette.requests import Request
 from aiogram import Bot
 from aiogram.dispatcher import Dispatcher
 
-from utils.write import write, update_or_create, get_data
+from utils.notion import write, update_or_create, get_data
 from utils.conf import load_json
 
 
