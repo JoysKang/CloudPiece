@@ -75,8 +75,9 @@ def get_data(chat_id=None):
     response = requests.post(
         f'https://api.notion.com/v1/databases/{relation_database_id}/query',
         headers=headers, data=_data)
+    # print(response.content)
     if response.status_code != 200:
-        return ""
+        return "", ""
 
     content = json.loads(response.content)
     result = content["results"][0]
@@ -88,11 +89,5 @@ def get_data(chat_id=None):
 if __name__ == "__main__":
     # write(conf.get('database_id'), conf.get('code'), "test")
 
-    chat = {
-        "id": 682824243,
-        "first_name": "F",
-        "last_name": "joys",
-        "username": "joyskaren",
-        "type": "private"
-    }
-    print(get_data(chat))
+    chat_id = 682824243
+    print(get_data(chat_id))

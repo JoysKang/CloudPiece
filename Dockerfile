@@ -9,4 +9,4 @@ RUN pip install -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip setupto
     && rm -rf ~/.cache/* \
     && rm -rf /var/lib/apt/lists/*
 
-CMD uvicorn app:app --host 0.0.0.0 --port 9000
+CMD python main.py
