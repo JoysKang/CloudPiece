@@ -1,7 +1,8 @@
 import logging
 import base64
 
-from aiohttp import web, ClientSession
+import requests
+from aiohttp import web
 from aiogram import Bot, types
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
 from aiogram.dispatcher import Dispatcher
@@ -15,6 +16,7 @@ conf = load_json("./conf.json")
 API_TOKEN = conf.get("telegram_token")
 CLIENT_ID = conf.get("client_id")
 CLIENT_SECRET = conf.get("client_secret")
+REDIRECT_URI = conf.get("redirect_uri")
 
 # webhook settings
 WEBHOOK_HOST = 'https://service-8povhv40-1257855910.sg.apigw.tencentcs.com/release'
@@ -45,12 +47,9 @@ async def send_welcome(message: types.Message):
 @dp.message_handler(commands=['bind'])
 async def send_welcome(message: types.Message):
     """授权"""
-    chat_id = message.chat.id
-    print(chat_id, "chat_id")
-    reply_message = "授权地址: https://api.notion.com/v1/oauth/authorize?client_id=3ee816e8-579f-4f72-aa94-bbf7abe6303b" \
-                    "&redirect_uri=https://service-8povhv40-1257855910.sg.apigw.tencentcs.com/release/auth" \
-                    "&response_type=code" \
-                    f"&chat_id={chat_id}"
+    reply_message = f"授权地址: https://api.notion.com/v1/oauth/authorize?client_id={CLIENT_ID}" \
+                    f"&redirect_uri={REDIRECT_URI}" \
+                    "&response_type=code"
     await message.reply(reply_message)
 
 
@@ -85,38 +84,31 @@ async def auth(request):
     # 向 https://api.notion.com/v1/oauth/token 发起请求
     host = request.headers.get("Host")
     code = request.rel_url.query["code"]
-    payload = {
+    data = {
         "grant_type": "authorization_code",
         "code": code,
-        "redirect_uri": f"{host}/token"
+        "redirect_uri": f"{host}/auth"
     }
 
-    authorization = base64.b64encode(f"{CLIENT_ID}:{CLIENT_SECRET}".encode("utf-8"))
+    authorization = base64.b64encode(f"{CLIENT_ID}:{CLIENT_SECRET}".encode("utf-8")).decode("utf-8")
     headers = {
         'content-type': 'application/json',
         'Authorization': f'Basic {authorization}'
     }
-    print(headers, "headers")
-    async with ClientSession() as sess:
-        async with sess.post('https://api.notion.com/v1/oauth/token', json=payload) as resp:
-            if resp.status != 200:
-                print(resp.content)
+    result = requests.post('https://api.notion.com/v1/oauth/token', json=data, headers=headers)
+    if result.status_code != 200:
+        print(result.content)
+        return web.json_response({"message": "Failure"})
 
-    return web.json_response({"message": "Success"})
+    json_data = result.json()
+    # 根据 chat_id、code、json_data 更新数据库
 
-
-async def token(request):
-    """授权回调(临时授权码)"""
-    print(request.rel_url)
-    data = await request.json()
-    print(data)
     return web.json_response({"message": "Success"})
 
 
 # web_app
 web_app = web.Application()
 web_app.add_routes([web.get('/auth', auth)])
-web_app.add_routes([web.post('/token', token)])
 
 
 if __name__ == '__main__':
