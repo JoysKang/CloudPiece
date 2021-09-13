@@ -11,12 +11,14 @@ from aiogram.utils.executor import set_webhook
 
 from utils.conf import load_json
 from utils.notion import write, update_or_create, get_data
+from utils.encryption import AESCipher
 
 conf = load_json("./conf.json")
 API_TOKEN = conf.get("telegram_token")
 CLIENT_ID = conf.get("client_id")
 CLIENT_SECRET = conf.get("client_secret")
 REDIRECT_URI = conf.get("redirect_uri")
+AES = AESCipher(conf.get("key"))
 
 # webhook settings
 WEBHOOK_HOST = 'https://service-8povhv40-1257855910.sg.apigw.tencentcs.com/release'
@@ -35,7 +37,7 @@ dp.middleware.setup(LoggingMiddleware())
 
 
 @dp.message_handler(commands=['database_id'])
-async def send_welcome(message: types.Message):
+async def database(message: types.Message):
     """授权"""
     # notion 记录 chat_id & database_id 的关系
     chat_id = message.chat.id
@@ -45,11 +47,16 @@ async def send_welcome(message: types.Message):
 
 
 @dp.message_handler(commands=['bind'])
-async def send_welcome(message: types.Message):
+async def bind(message: types.Message):
     """授权"""
+    username = message.chat.username
+    chat_id = str(message.chat.id)
+    state = AES.encrypt(chat_id)    # 加密
     reply_message = f"授权地址: https://api.notion.com/v1/oauth/authorize?client_id={CLIENT_ID}" \
                     f"&redirect_uri={REDIRECT_URI}" \
-                    "&response_type=code"
+                    "&response_type=code" \
+                    f"&state={state}"
+    update_or_create(name=username, chat_id=chat_id, create=True)
     await message.reply(reply_message)
 
 
@@ -102,6 +109,9 @@ async def auth(request):
 
     json_data = result.json()
     # 根据 chat_id、code、json_data 更新数据库
+    state = request.rel_url.query["state"]
+    chat_id = AES.decrypt(state)  # 解密
+    update_or_create(chat_id, code)
 
     return web.json_response({"message": "Success"})
 
