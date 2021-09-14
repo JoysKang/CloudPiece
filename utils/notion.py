@@ -125,6 +125,12 @@ def create(name, chat_id=""):
         'Notion-Version': f'{notion_version}',
         'Content-Type': 'application/json',
     }
+
+    # 先判断 chat_id 是否已存在，不存在再写入，已存在的直接跳过
+    _, _, page_id = get_data(chat_id)
+    if page_id:
+        return True
+
     data = {
         "parent": {"database_id": relation_database_id},
         "properties": {
@@ -196,15 +202,19 @@ def get_data(chat_id=None):
         return "", ""
 
     content = json.loads(response.content)
+    if len(content["results"]) <= 0:
+        return None, None, None
+
     result = content["results"][0]
     database_id = result["properties"]["DatabaseId"]["rich_text"][0]["plain_text"]
-    code = result["properties"]["Code"]["rich_text"][0]["plain_text"]
-    return database_id, code
+    access_token = result["properties"]["AccessToken"]["rich_text"][0]["plain_text"]
+    page_id = result["id"]  # 存在 page_id 则说明当前 chat_id 已有记录，不需要重复写
+    return database_id, access_token, page_id
 
 
-def get_database_id(token=""):
+def get_database_id(access_token=""):
     headers = {
-        'Authorization': f'Bearer {token}',
+        'Authorization': f'Bearer {access_token}',
         'Notion-Version': f'{notion_version}',
         'Content-Type': 'application/json',
     }
@@ -216,21 +226,17 @@ def get_database_id(token=""):
 
     content = json.loads(response.content)
     result = content["results"][0]
-    print(result)
-    return result["parent"]["database_id"].replace("-", "")
+    return result["id"].replace("-", "")
 
 
 if __name__ == "__main__":
-    # database_id = "afa9eb11160147e1b5d6975fb725d0b2"
-    # code = "secret_6S5keodDtrnRqXjI5dgbQUWzKmSeG6yL9XWvVdAjXW7"
-    # write(database_id, code, "test")
-
-    # chat_id = "682824241"
-    # print(get_data(chat_id))
+    chat_id = "682824243"
+    database_id, access_token, page_id = get_data(chat_id)
+    print(database_id, access_token, page_id)
+    write(database_id, access_token, "test")
     # print(get_page_id(chat_id))
     # create("Joys", "1")  # 更新
     # update("682824241", "1000")  # 更新
 
-    token = "secret_6S5keodDtrnRqXjI5dgbQUWzKmSeG6yL9XWvVdAjXW7"
-    workspace_id = "b21e2813-848c-47da-977e-0ac05baa96a6"
-    print(get_database_id(token))
+    # token = "secret_VyhnFdYcY8wz1coSvTKICUZY7EFauucB0ySsZXu7EyO"
+    # print(get_database_id(token))

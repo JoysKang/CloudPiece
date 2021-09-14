@@ -65,9 +65,11 @@ async def echo(message: types.Message):
     chat_id = message.chat.id
     text = message.text
 
-    database_id, code = get_data(chat_id)
-    if write(database_id, code, text):
-        await bot.send_message(chat_id, "已存储")
+    database_id, access_token, _ = get_data(chat_id)
+    if not (database_id or access_token):
+        return SendMessage(chat_id, "database_id or access_token lack")
+
+    if write(database_id, access_token, text):
         return SendMessage(chat_id, "已存储")
 
 
@@ -89,12 +91,11 @@ async def on_shutdown(dp):
 async def auth(request):
     """授权回调"""
     # 向 https://api.notion.com/v1/oauth/token 发起请求
-    host = request.headers.get("Host")
     code = request.rel_url.query["code"]
     data = {
         "grant_type": "authorization_code",
         "code": code,
-        "redirect_uri": f"{host}/auth"
+        "redirect_uri": REDIRECT_URI
     }
 
     authorization = base64.b64encode(f"{CLIENT_ID}:{CLIENT_SECRET}".encode("utf-8")).decode("utf-8")
@@ -102,14 +103,10 @@ async def auth(request):
         'content-type': 'application/json',
         'Authorization': f'Basic {authorization}'
     }
-    print(data)
-    print(headers)
     result = requests.post('https://api.notion.com/v1/oauth/token', json=data, headers=headers)
     if result.status_code != 200:
         print(result.content, "----")
         return web.json_response({"message": "Failure"})
-    else:
-        print(result.content, "===")
 
     json_data = result.json()
     # 根据 chat_id、code、json_data 更新数据库

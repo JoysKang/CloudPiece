@@ -9,4 +9,4 @@ RUN pip install -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip setupto
     && rm -rf ~/.cache/* \
     && rm -rf /var/lib/apt/lists/*
 
-CMD python main.py
+CMD python -u main.py
