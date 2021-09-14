@@ -10,8 +10,9 @@ relation_code = conf.get('relation_code')
 notion_version = conf.get('notion_version')
 
 
-async def async_write(database_id, code, text):
-    write(database_id, code, text)
+def delete_relation(chat_id):
+    """删除记录"""
+    pass
 
 
 def write(database_id, code, text):
@@ -129,7 +130,7 @@ def create(name, chat_id=""):
     # 先判断 chat_id 是否已存在，不存在再写入，已存在的直接跳过
     _, _, page_id = get_data(chat_id)
     if page_id:
-        return True
+        return False
 
     data = {
         "parent": {"database_id": relation_database_id},

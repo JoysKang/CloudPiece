@@ -56,8 +56,10 @@ async def bind(message: types.Message):
                     f"&redirect_uri={REDIRECT_URI}" \
                     "&response_type=code" \
                     f"&state={state}"
-    create(name=username, chat_id=chat_id)
-    await message.reply(reply_message)
+    if not create(name=username, chat_id=chat_id):
+        return SendMessage(chat_id, "已绑定")
+
+    return SendMessage(chat_id, reply_message)
 
 
 @dp.message_handler()
