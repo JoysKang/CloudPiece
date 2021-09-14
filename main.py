@@ -53,7 +53,7 @@ async def bind(message: types.Message):
 
 
 @dp.message_handler(commands=['unbind'])
-async def bind(message: types.Message):
+async def unbind(message: types.Message):
     """解除绑定(删除 relation关系 )"""
     chat_id = str(message.chat.id)
     delete_relation(chat_id)
