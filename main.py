@@ -10,7 +10,7 @@ from aiogram.dispatcher.webhook import SendMessage
 from aiogram.utils.executor import set_webhook
 
 from utils.conf import load_json
-from utils.notion import write, update_or_create, get_data
+from utils.notion import write, create, update, get_data
 from utils.encryption import AESCipher
 
 conf = load_json("./conf.json")
@@ -56,7 +56,7 @@ async def bind(message: types.Message):
                     f"&redirect_uri={REDIRECT_URI}" \
                     "&response_type=code" \
                     f"&state={state}"
-    update_or_create(name=username, chat_id=chat_id, create=True)
+    create(name=username, chat_id=chat_id)
     await message.reply(reply_message)
 
 
@@ -111,7 +111,7 @@ async def auth(request):
     # 根据 chat_id、code、json_data 更新数据库
     state = request.rel_url.query["state"]
     chat_id = AES.decrypt(state)  # 解密
-    update_or_create(chat_id, code)
+    update(chat_id, code)
 
     return web.json_response({"message": "Success"})
 
