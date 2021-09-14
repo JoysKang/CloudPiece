@@ -12,7 +12,25 @@ notion_version = conf.get('notion_version')
 
 def delete_relation(chat_id):
     """删除记录"""
-    pass
+    headers = {
+        'Authorization': f'Bearer {relation_code}',
+        'Notion-Version': f'{notion_version}',
+        'Content-Type': 'application/json',
+    }
+    data = {
+        "parent": {"database_id": relation_database_id},
+        "properties": {},
+        "archived": True
+    }
+
+    page_id = get_page_id(chat_id)
+    response = requests.patch(f'https://api.notion.com/v1/pages/{page_id}',
+                              headers=headers, data=json.dumps(data))
+    if response.status_code == 200:
+        return True
+
+    print(response.content)
+    return False
 
 
 def write(database_id, code, text):
@@ -231,10 +249,11 @@ def get_database_id(access_token=""):
 
 
 if __name__ == "__main__":
-    chat_id = "682824243"
-    database_id, access_token, page_id = get_data(chat_id)
-    print(database_id, access_token, page_id)
-    write(database_id, access_token, "test")
+    chat_id = "682824241"
+    delete_relation(chat_id)
+    # database_id, access_token, page_id = get_data(chat_id)
+    # print(database_id, access_token, page_id)
+    # write(database_id, access_token, "test")
     # print(get_page_id(chat_id))
     # create("Joys", "1")  # 更新
     # update("682824241", "1000")  # 更新

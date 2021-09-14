@@ -10,7 +10,7 @@ from aiogram.dispatcher.webhook import SendMessage
 from aiogram.utils.executor import set_webhook
 
 from utils.conf import load_json
-from utils.notion import write, create, update, get_data, get_database_id
+from utils.notion import write, create, update, get_data, get_database_id, delete_relation
 from utils.encryption import AESCipher
 
 conf = load_json("./conf.json")
@@ -36,19 +36,9 @@ dp = Dispatcher(bot)
 dp.middleware.setup(LoggingMiddleware())
 
 
-# @dp.message_handler(commands=['database_id'])
-async def database(message: types.Message):
-    """授权"""
-    # notion 记录 chat_id & database_id 的关系
-    chat_id = message.chat.id
-    print(chat_id, "chat_id")
-    reply_message = "写入成功"
-    await message.reply(reply_message)
-
-
 @dp.message_handler(commands=['bind'])
 async def bind(message: types.Message):
-    """授权"""
+    """绑定"""
     username = message.chat.username
     chat_id = str(message.chat.id)
     state = AES.encrypt(chat_id)    # 加密
@@ -60,6 +50,15 @@ async def bind(message: types.Message):
         return SendMessage(chat_id, "已绑定")
 
     return SendMessage(chat_id, reply_message)
+
+
+@dp.message_handler(commands=['unbind'])
+async def bind(message: types.Message):
+    """解除绑定(删除 relation关系 )"""
+    chat_id = str(message.chat.id)
+    delete_relation(chat_id)
+
+    return SendMessage(chat_id, "解绑完成，如需继续使用，请先使用 /bind 进行绑定")
 
 
 @dp.message_handler()
