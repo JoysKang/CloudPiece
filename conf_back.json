@@ -1,5 +1,10 @@
 {
-  "relation_code": "secret_2QPxxx",
-  "relation_database_id": "d0bxxx",
-  "telegram_token": "191xxx"
+  "relation_code": "secret_2QP",
+  "relation_database_id": "7a2",
+  "client_id": "3ee",
+  "client_secret": "secret_VG5",
+  "redirect_uri": "https://service-8",
+  "telegram_token": "191",
+  "key": "yuv",
+  "notion_version": "2021-08-16"
 }

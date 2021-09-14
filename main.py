@@ -10,7 +10,7 @@ from aiogram.dispatcher.webhook import SendMessage
 from aiogram.utils.executor import set_webhook
 
 from utils.conf import load_json
-from utils.notion import write, create, update, get_data
+from utils.notion import write, create, update, get_data, get_database_id
 from utils.encryption import AESCipher
 
 conf = load_json("./conf.json")
@@ -36,7 +36,7 @@ dp = Dispatcher(bot)
 dp.middleware.setup(LoggingMiddleware())
 
 
-@dp.message_handler(commands=['database_id'])
+# @dp.message_handler(commands=['database_id'])
 async def database(message: types.Message):
     """授权"""
     # notion 记录 chat_id & database_id 的关系
@@ -102,16 +102,23 @@ async def auth(request):
         'content-type': 'application/json',
         'Authorization': f'Basic {authorization}'
     }
+    print(data)
+    print(headers)
     result = requests.post('https://api.notion.com/v1/oauth/token', json=data, headers=headers)
     if result.status_code != 200:
-        print(result.content)
+        print(result.content, "----")
         return web.json_response({"message": "Failure"})
+    else:
+        print(result.content, "===")
 
     json_data = result.json()
     # 根据 chat_id、code、json_data 更新数据库
+    access_token = json_data.get('access_token')
+    database_id = get_database_id(access_token)
+
     state = request.rel_url.query["state"]
     chat_id = AES.decrypt(state)  # 解密
-    update(chat_id, code)
+    update(chat_id=chat_id, access_token=access_token, database_id=database_id, code=code)
 
     return web.json_response({"message": "Success"})
 
