@@ -62,21 +62,61 @@ class CloudPiece:
             "children": []
         }
 
+    def video(self, url):
+        self.body["children"].append({
+            "type": "video",
+            "video": {
+                "type": "external",
+                "external": {
+                    "url": url
+                }
+            }
+        }
+        )
+        print(self.body)
+        return self.save(self.body)
+
+    def document(self, url):
+        self.body["children"].append({
+            "type": "file",
+            "file": {
+                "type": "external",
+                "external": {
+                    "url": url
+                }
+            }
+        })
+        print(self.body)
+        return self.save(self.body)
+
+    def image(self, url):
+        self.body["children"].append({
+            "type": "image",
+            "image": {
+                "type": "external",
+                "external": {
+                    "url": url
+                }
+            }
+        })
+        print(self.body)
+        return self.save(self.body)
+
     def text(self, text):
         self.body["children"].append({
-                "object": "block",
-                "type": "paragraph",
-                "paragraph": {
-                    "text": [
-                        {
-                            "type": "text",
-                            "text": {
-                                "content": text
-                            }
+            "object": "block",
+            "type": "paragraph",
+            "paragraph": {
+                "text": [
+                    {
+                        "type": "text",
+                        "text": {
+                            "content": text
                         }
-                    ]
-                }
-            })
+                    }
+                ]
+            }
+        })
         print(self.body)
         return self.save(self.body)
 
@@ -191,25 +231,25 @@ def update(chat_id="", access_token="", database_id="", code=""):
 
     if access_token:
         data['properties']["AccessToken"] = {
-                "rich_text": [
-                    {
-                        "text": {
-                            "content": access_token
-                        }
+            "rich_text": [
+                {
+                    "text": {
+                        "content": access_token
                     }
-                ]
-            }
+                }
+            ]
+        }
 
     if database_id:
         data['properties']["DatabaseId"] = {
-                "rich_text": [
-                    {
-                        "text": {
-                            "content": database_id
-                        }
+            "rich_text": [
+                {
+                    "text": {
+                        "content": database_id
                     }
-                ]
-            }
+                }
+            ]
+        }
 
     if code:
         data['properties']["Code"] = {
@@ -320,5 +360,5 @@ if __name__ == "__main__":
     chat_id = "682824243"
     cloud_piece = CloudPiece(chat_id)
     # cloud_piece.maps("https://www.google.com/maps/place/36%C2%B007'46.9%22N+113%C2%B008'29.2%22E")
-    cloud_piece.text("test")
-
+    # cloud_piece.text("test")
+    cloud_piece.video("https://api.telegram.org/file/bot1914747869:AAE-ApGYBNR7CiUBEhG39HyDKPIZhPk5RnY/animations/file_6.mp4")

@@ -1,6 +1,5 @@
 import logging
 import base64
-import traceback
 
 import requests
 from aiohttp import web
@@ -12,9 +11,10 @@ from aiogram.dispatcher.webhook import SendMessage
 from aiogram.utils.executor import set_webhook
 
 from utils.conf import load_json
-from utils.notion import write, create, update, get_database_id, delete_relation, CloudPiece
+from utils.notion import create, update, get_database_id, delete_relation, CloudPiece
 from utils.encryption import AESCipher
 from utils.latitude import Degree
+from utils.telegram import get_total_file_path
 
 conf = load_json("./conf.json")
 API_TOKEN = conf.get("telegram_token")
@@ -37,6 +37,7 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 dp.middleware.setup(LoggingMiddleware())
+unsupported = "暂不支持该消息类型的存储，目前仅支持文本、图片、视频、GIF、文件"
 
 
 @dp.message_handler(commands=['start'])
@@ -60,7 +61,7 @@ async def bind(message: Message):
     """绑定"""
     username = message.chat.username
     chat_id = str(message.chat.id)
-    state = AES.encrypt(chat_id)    # 加密
+    state = AES.encrypt(chat_id)  # 加密
     reply_message = f"授权地址: https://api.notion.com/v1/oauth/authorize?client_id={CLIENT_ID}" \
                     f"&redirect_uri={REDIRECT_URI}" \
                     "&response_type=code" \
@@ -88,12 +89,24 @@ async def errors(exception):
 @dp.message_handler(content_types=ContentType.PHOTO)
 async def photo_handler(message: Message):
     """
-    {"message_id": 286, "from": {"id": 682824243, "is_bot": false, "first_name": "F", "last_name": "joys", "username": "joyskaren", "language_code": "zh-hans"}, "chat": {"id": 682824243, "first_name": "F", "last_name": "joys", "username": "joyskaren", "type": "private"}, "date": 1631746843, "photo": [{"file_id": "AgACAgUAAxkBAAIBHmFCexuQ1bp0N47YwArKM5YcPdokAAJUrzEbhcgQVmmEKN_iB7NbAQADAgADcwADIAQ", "file_unique_id": "AQADVK8xG4XIEFZ4", "file_size": 1028, "width": 90, "height": 46}, {"file_id": "AgACAgUAAxkBAAIBHmFCexuQ1bp0N47YwArKM5YcPdokAAJUrzEbhcgQVmmEKN_iB7NbAQADAgADbQADIAQ", "file_unique_id": "AQADVK8xG4XIEFZy", "file_size": 9704, "width": 320, "height": 163}, {"file_id": "AgACAgUAAxkBAAIBHmFCexuQ1bp0N47YwArKM5YcPdokAAJUrzEbhcgQVmmEKN_iB7NbAQADAgADeAADIAQ", "file_unique_id": "AQADVK8xG4XIEFZ9", "file_size": 12657, "width": 436, "height": 222}], "caption": "压缩图片"}    :param message:
+    {"message_id": 286, "from": {"id": 682824243, "is_bot": false, "first_name": "F", "last_name": "joys", "username": "joyskaren", "language_code": "zh-hans"}, "chat": {"id": 682824243, "first_name": "F", "last_name": "joys", "username": "joyskaren", "type": "private"}, "date": 1631746843, "photo": [{"file_id": "AgACAgUAAxkBAAIBHmFCexuQ1bp0N47YwArKM5YcPdokAAJUrzEbhcgQVmmEKN_iB7NbAQADAgADcwADIAQ", "file_unique_id": "AQADVK8xG4XIEFZ4", "file_size": 1028, "width": 90, "height": 46}, {"file_id": "AgACAgUAAxkBAAIBHmFCexuQ1bp0N47YwArKM5YcPdokAAJUrzEbhcgQVmmEKN_iB7NbAQADAgADbQADIAQ", "file_unique_id": "AQADVK8xG4XIEFZy", "file_size": 9704, "width": 320, "height": 163}, {"file_id": "AgACAgUAAxkBAAIBHmFCexuQ1bp0N47YwArKM5YcPdokAAJUrzEbhcgQVmmEKN_iB7NbAQADAgADeAADIAQ", "file_unique_id": "AQADVK8xG4XIEFZ9", "file_size": 12657, "width": 436, "height": 222}], "caption": "压缩图片"}
+    :param message:
     :return:
     """
     print("photo_handler")
     print(message)
-    print("*****")
+    chat_id = message.chat.id
+    cloud_piece = CloudPiece(chat_id)
+    if None in (cloud_piece.database_id, cloud_piece.access_token):
+        return SendMessage(chat_id, "database_id or access_token lack")
+
+    file_id = message.photo[-1].file_id
+    file_info = await bot.get_file(file_id)
+    file_path = get_total_file_path(file_info.file_path)
+    if cloud_piece.image(file_path):
+        return SendMessage(chat_id, "已存储")
+
+    return SendMessage(chat_id, "存储失败")
 
 
 @dp.message_handler(content_types=ContentType.DOCUMENT)
@@ -108,27 +121,41 @@ async def document_handler(message: Message):
     """
     print("document_handler")
     print(message)
-    print("*****")
+    chat_id = message.chat.id
+    cloud_piece = CloudPiece(chat_id)
+    if None in (cloud_piece.database_id, cloud_piece.access_token):
+        return SendMessage(chat_id, "database_id or access_token lack")
 
+    file_id = message.document.file_id
+    file_info = await bot.get_file(file_id)
+    file_path = get_total_file_path(file_info.file_path)
+    if cloud_piece.document(file_path):
+        return SendMessage(chat_id, "已存储")
 
-@dp.message_handler(content_types=ContentType.AUDIO)
-async def audio_handler(message: Message):
-    print("audio_handler")
-    print(message)
-    print("*****")
+    return SendMessage(chat_id, "存储失败")
 
 
 @dp.message_handler(content_types=ContentType.VIDEO)
 async def video_handler(message: Message):
     """
-    video_handler
     {"message_id": 287, "from": {"id": 682824243, "is_bot": false, "first_name": "F", "last_name": "joys", "username": "joyskaren", "language_code": "zh-hans"}, "chat": {"id": 682824243, "first_name": "F", "last_name": "joys", "username": "joyskaren", "type": "private"}, "date": 1631746989, "video": {"duration": 14, "width": 416, "height": 640, "file_name": "1 (106).mp4", "mime_type": "video/mp4", "thumb": {"file_id": "AAMCBQADGQEAAgEfYUJ7rSeorGrhyuNAO7UoI1juc6wAAu4DAAKFyBhWmITq7CWOlKkBAAdtAAMgBA", "file_unique_id": "AQAD7gMAAoXIGFZy", "file_size": 11560, "width": 208, "height": 320}, "file_id": "BAACAgUAAxkBAAIBH2FCe60nqKxq4crjQDu1KCNY7nOsAALuAwAChcgYVpiE6uwljpSpIAQ", "file_unique_id": "AgAD7gMAAoXIGFY", "file_size": 5698704}, "caption": "视频"}
     :param message:
     :return:
     """
     print("video_handler")
     print(message)
-    print("*****")
+    chat_id = message.chat.id
+    cloud_piece = CloudPiece(chat_id)
+    if None in (cloud_piece.database_id, cloud_piece.access_token):
+        return SendMessage(chat_id, "database_id or access_token lack")
+
+    file_id = message.video.file_id
+    file_info = await bot.get_file(file_id)
+    file_path = get_total_file_path(file_info.file_path)
+    if cloud_piece.video(file_path):
+        return SendMessage(chat_id, "已存储")
+
+    return SendMessage(chat_id, "存储失败")
 
 
 @dp.message_handler(content_types=ContentType.ANIMATION)
@@ -140,7 +167,18 @@ async def animation_handler(message: Message):
     """
     print("animation_handler")
     print(message)
-    print("*****")
+    chat_id = message.chat.id
+    cloud_piece = CloudPiece(chat_id)
+    if None in (cloud_piece.database_id, cloud_piece.access_token):
+        return SendMessage(chat_id, "database_id or access_token lack")
+
+    file_id = message.animation.file_id
+    file_info = await bot.get_file(file_id)
+    file_path = get_total_file_path(file_info.file_path)
+    if cloud_piece.video(file_path):
+        return SendMessage(chat_id, "已存储")
+
+    return SendMessage(chat_id, "存储失败")
 
 
 @dp.message_handler(content_types=ContentType.LOCATION)
@@ -154,7 +192,7 @@ async def location_handler(message: Message):
     print("location_handler")
     print(message)
     chat_id = message.chat.id
-    return SendMessage(chat_id, "暂不支持该消息类型的存储")
+    return SendMessage(chat_id, unsupported)
 
     cloud_piece = CloudPiece(chat_id)
     if None in (cloud_piece.database_id, cloud_piece.access_token):
@@ -198,6 +236,7 @@ async def other_handler(message: Message):
     print("other_handler")
     print(message)
     print(message.content_type)
+    return SendMessage(message.chat.id, unsupported)
 
 
 async def on_startup(dp):
@@ -250,7 +289,6 @@ async def auth(request):
 # web_app
 web_app = web.Application()
 web_app.add_routes([web.get('/auth', auth)])
-
 
 if __name__ == '__main__':
     executor = set_webhook(
