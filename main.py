@@ -15,6 +15,7 @@ from utils.notion import create, update, get_database_id, delete_relation, Cloud
 from utils.encryption import AESCipher
 from utils.latitude import Degree
 from utils.telegram import get_total_file_path
+from utils.log import AccessLogger
 
 conf = load_json("./conf.json")
 API_TOKEN = conf.get("telegram_token")
@@ -93,8 +94,6 @@ async def photo_handler(message: Message):
     :param message:
     :return:
     """
-    print("photo_handler")
-    print(message)
     chat_id = message.chat.id
     cloud_piece = CloudPiece(chat_id)
     if None in (cloud_piece.database_id, cloud_piece.access_token):
@@ -119,8 +118,6 @@ async def document_handler(message: Message):
     :param message:
     :return:
     """
-    print("document_handler")
-    print(message)
     chat_id = message.chat.id
     cloud_piece = CloudPiece(chat_id)
     if None in (cloud_piece.database_id, cloud_piece.access_token):
@@ -142,7 +139,6 @@ async def video_handler(message: Message):
     :param message:
     :return:
     """
-    print("video_handler")
     print(message)
     chat_id = message.chat.id
     cloud_piece = CloudPiece(chat_id)
@@ -165,8 +161,6 @@ async def animation_handler(message: Message):
     :param message:
     :return:
     """
-    print("animation_handler")
-    print(message)
     chat_id = message.chat.id
     cloud_piece = CloudPiece(chat_id)
     if None in (cloud_piece.database_id, cloud_piece.access_token):
@@ -189,8 +183,6 @@ async def location_handler(message: Message):
     :param message:
     :return:
     """
-    print("location_handler")
-    print(message)
     chat_id = message.chat.id
     return SendMessage(chat_id, unsupported)
 
@@ -209,8 +201,6 @@ async def location_handler(message: Message):
 
 @dp.message_handler(content_types=ContentType.TEXT)
 async def text_handler(message: Message):
-    print("text_handler")
-    print(message)
     chat_id = message.chat.id
     cloud_piece = CloudPiece(chat_id)
     if None in (cloud_piece.database_id, cloud_piece.access_token):
@@ -233,9 +223,6 @@ async def other_handler(message: Message):
     :param message:
     :return:
     """
-    print("other_handler")
-    print(message)
-    print(message.content_type)
     return SendMessage(message.chat.id, unsupported)
 
 
@@ -286,11 +273,16 @@ async def auth(request):
     return web.json_response({"message": "Success"})
 
 
-# web_app
-web_app = web.Application()
-web_app.add_routes([web.get('/auth', auth)])
+async def root(request):
+    return web.json_response({"message": "Success"})
+
 
 if __name__ == '__main__':
+    # web_app
+    web_app = web.Application()
+    web_app.add_routes([web.get('/', root)])
+    web_app.add_routes([web.get('/auth', auth)])
+
     executor = set_webhook(
         dispatcher=dp,
         webhook_path=WEBHOOK_PATH,
@@ -300,4 +292,5 @@ if __name__ == '__main__':
         web_app=web_app
     )
     executor.run_app(host=WEBAPP_HOST,
-                     port=WEBAPP_PORT)
+                     port=WEBAPP_PORT,
+                     access_log_class=AccessLogger)
