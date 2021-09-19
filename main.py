@@ -2,6 +2,7 @@ import logging
 import base64
 
 import requests
+import sentry_sdk
 from aiohttp import web
 from aiogram import Bot
 from aiogram.types import Message, ContentType
@@ -15,7 +16,6 @@ from utils.notion import create, update, get_database_id, delete_relation, Cloud
 from utils.encryption import AESCipher
 from utils.latitude import Degree
 from utils.telegram import get_total_file_path
-from utils.log import AccessLogger
 
 conf = load_json("./conf.json")
 API_TOKEN = conf.get("telegram_token")
@@ -23,6 +23,15 @@ CLIENT_ID = conf.get("client_id")
 CLIENT_SECRET = conf.get("client_secret")
 REDIRECT_URI = conf.get("redirect_uri")
 AES = AESCipher(conf.get("key"))
+
+sentry_sdk.init(
+    conf.get("sentry_address"),
+
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    # We recommend adjusting this value in production.
+    traces_sample_rate=1.0
+)
 
 # webhook settings
 WEBHOOK_HOST = 'https://service-8povhv40-1257855910.sg.apigw.tencentcs.com/release'
@@ -292,5 +301,4 @@ if __name__ == '__main__':
         web_app=web_app
     )
     executor.run_app(host=WEBAPP_HOST,
-                     port=WEBAPP_PORT,
-                     access_log_class=AccessLogger)
+                     port=WEBAPP_PORT)

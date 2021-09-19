@@ -35,7 +35,7 @@ def delete_relation(chat_id):
 
 class CloudPiece:
     """
-    notion write body
+    notion
     """
 
     def __init__(self, chat_id):
