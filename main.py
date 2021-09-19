@@ -34,7 +34,7 @@ sentry_sdk.init(
 )
 
 # webhook settings
-WEBHOOK_HOST = 'https://service-8povhv40-1257855910.sg.apigw.tencentcs.com/release'
+WEBHOOK_HOST = conf.get('webhook_host')
 WEBHOOK_PATH = '/echo'
 WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
 
