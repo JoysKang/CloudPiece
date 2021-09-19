@@ -62,7 +62,9 @@ class CloudPiece:
             "children": []
         }
 
-    def video(self, url):
+    def video(self, url, caption=""):
+        if caption:
+            self.text(caption)
         self.body["children"].append({
             "type": "video",
             "video": {
@@ -76,7 +78,9 @@ class CloudPiece:
         print(self.body)
         return self.save(self.body)
 
-    def document(self, url):
+    def document(self, url, caption=""):
+        if caption:
+            self.text(caption)
         self.body["children"].append({
             "type": "file",
             "file": {
@@ -89,7 +93,10 @@ class CloudPiece:
         print(self.body)
         return self.save(self.body)
 
-    def image(self, url):
+    def image(self, url, caption=""):
+        if caption:
+            self.text(caption)
+
         self.body["children"].append({
             "type": "image",
             "image": {
@@ -361,4 +368,4 @@ if __name__ == "__main__":
     cloud_piece = CloudPiece(chat_id)
     # cloud_piece.maps("https://www.google.com/maps/place/36%C2%B007'46.9%22N+113%C2%B008'29.2%22E")
     # cloud_piece.text("test")
-    cloud_piece.video("https://api.telegram.org/file/bot1914747869:AAE-ApGYBNR7CiUBEhG39HyDKPIZhPk5RnY/animations/file_6.mp4")
+    cloud_piece.video("https://", "text")

@@ -111,7 +111,7 @@ async def photo_handler(message: Message):
     file_id = message.photo[-1].file_id
     file_info = await bot.get_file(file_id)
     file_path = get_total_file_path(file_info.file_path)
-    if cloud_piece.image(file_path):
+    if cloud_piece.image(file_path, message.caption):
         return SendMessage(chat_id, "已存储")
 
     return SendMessage(chat_id, "存储失败")
@@ -135,7 +135,7 @@ async def document_handler(message: Message):
     file_id = message.document.file_id
     file_info = await bot.get_file(file_id)
     file_path = get_total_file_path(file_info.file_path)
-    if cloud_piece.document(file_path):
+    if cloud_piece.document(file_path, message.caption):
         return SendMessage(chat_id, "已存储")
 
     return SendMessage(chat_id, "存储失败")
@@ -157,7 +157,7 @@ async def video_handler(message: Message):
     file_id = message.video.file_id
     file_info = await bot.get_file(file_id)
     file_path = get_total_file_path(file_info.file_path)
-    if cloud_piece.video(file_path):
+    if cloud_piece.video(file_path, message.caption):
         return SendMessage(chat_id, "已存储")
 
     return SendMessage(chat_id, "存储失败")
@@ -178,7 +178,7 @@ async def animation_handler(message: Message):
     file_id = message.animation.file_id
     file_info = await bot.get_file(file_id)
     file_path = get_total_file_path(file_info.file_path)
-    if cloud_piece.video(file_path):
+    if cloud_piece.video(file_path, message.caption):
         return SendMessage(chat_id, "已存储")
 
     return SendMessage(chat_id, "存储失败")
@@ -202,7 +202,7 @@ async def location_handler(message: Message):
     latitude = Degree.dd_to_dms(message.location.latitude)
     longitude = Degree.dd_to_dms(message.location.longitude)
     url = f"https://www.google.com/maps/place/{latitude}N+{longitude}E/"
-    if cloud_piece.maps(url):
+    if cloud_piece.maps(url, message.caption):
         return SendMessage(chat_id, "已存储")
 
     return SendMessage(chat_id, "存储失败")
