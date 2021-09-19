@@ -64,7 +64,8 @@ class CloudPiece:
 
     def video(self, url, caption=""):
         if caption:
-            self.text(caption)
+            self.text(caption, is_save=False)
+
         self.body["children"].append({
             "type": "video",
             "video": {
@@ -80,7 +81,8 @@ class CloudPiece:
 
     def document(self, url, caption=""):
         if caption:
-            self.text(caption)
+            self.text(caption, is_save=False)
+
         self.body["children"].append({
             "type": "file",
             "file": {
@@ -95,7 +97,7 @@ class CloudPiece:
 
     def image(self, url, caption=""):
         if caption:
-            self.text(caption)
+            self.text(caption, is_save=False)
 
         self.body["children"].append({
             "type": "image",
@@ -109,7 +111,7 @@ class CloudPiece:
         print(self.body)
         return self.save(self.body)
 
-    def text(self, text):
+    def text(self, text, is_save=True):
         self.body["children"].append({
             "object": "block",
             "type": "paragraph",
@@ -125,6 +127,9 @@ class CloudPiece:
             }
         })
         print(self.body)
+        if not is_save:
+            return False
+        
         return self.save(self.body)
 
     def maps(self, url):
