@@ -114,8 +114,9 @@ async def photo_handler(message: Message):
     file_id = message.photo[-1].file_id
     file_info = await bot.get_file(file_id)
     file_path = get_total_file_path(file_info.file_path)
-    if cloud_piece.image(file_path, message.caption):
-        return SendMessage(chat_id, "已存储")
+    result, url = cloud_piece.image(file_path, message.caption)
+    if result:
+        return SendMessage(chat_id, f"已存储, </br>[立即编辑]({url})", parse_mode="Markdown")
 
     return SendMessage(chat_id, "存储失败")
 
@@ -138,13 +139,14 @@ async def document_handler(message: Message):
     file_id = message.document.file_id
     file_info = await bot.get_file(file_id)
     file_path = get_total_file_path(file_info.file_path)
-    if cloud_piece.document(file_path, message.caption):
-        return SendMessage(chat_id, "已存储")
+    result, url = cloud_piece.document(file_path, message.caption)
+    if result:
+        return SendMessage(chat_id, f"已存储, \n立即编辑：{url}")
 
     return SendMessage(chat_id, "存储失败")
 
 
-@dp.message_handler(content_types=ContentType.VIDEO)
+@dp.message_handler(content_types=ContentType.VIDEO | ContentType.ANIMATION)
 async def video_handler(message: Message):
     """
     {"message_id": 287, "from": {"id": 682824243, "is_bot": false, "first_name": "F", "last_name": "joys", "username": "joyskaren", "language_code": "zh-hans"}, "chat": {"id": 682824243, "first_name": "F", "last_name": "joys", "username": "joyskaren", "type": "private"}, "date": 1631746989, "video": {"duration": 14, "width": 416, "height": 640, "file_name": "1 (106).mp4", "mime_type": "video/mp4", "thumb": {"file_id": "AAMCBQADGQEAAgEfYUJ7rSeorGrhyuNAO7UoI1juc6wAAu4DAAKFyBhWmITq7CWOlKkBAAdtAAMgBA", "file_unique_id": "AQAD7gMAAoXIGFZy", "file_size": 11560, "width": 208, "height": 320}, "file_id": "BAACAgUAAxkBAAIBH2FCe60nqKxq4crjQDu1KCNY7nOsAALuAwAChcgYVpiE6uwljpSpIAQ", "file_unique_id": "AgAD7gMAAoXIGFY", "file_size": 5698704}, "caption": "视频"}
@@ -160,29 +162,9 @@ async def video_handler(message: Message):
     file_id = message.video.file_id
     file_info = await bot.get_file(file_id)
     file_path = get_total_file_path(file_info.file_path)
-    if cloud_piece.video(file_path, message.caption):
-        return SendMessage(chat_id, "已存储")
-
-    return SendMessage(chat_id, "存储失败")
-
-
-@dp.message_handler(content_types=ContentType.ANIMATION)
-async def animation_handler(message: Message):
-    """
-    {"message_id": 282, "from": {"id": 682824243, "is_bot": false, "first_name": "F", "last_name": "joys", "username": "joyskaren", "language_code": "zh-hans"}, "chat": {"id": 682824243, "first_name": "F", "last_name": "joys", "username": "joyskaren", "type": "private"}, "date": 1631746595, "animation": {"file_name": "1.gif.mp4", "mime_type": "video/mp4", "duration": 2, "width": 320, "height": 240, "thumb": {"file_id": "AAMCBQADGQEAAgEaYUJ59Bm6fi8aVicQz7MFPaLOQVsAAuoDAAKFyBhW7SMjLopgX2MBAAdtAAMgBA", "file_unique_id": "AQAD6gMAAoXIGFZy", "file_size": 12682, "width": 320, "height": 240}, "file_id": "CgACAgUAAxkBAAIBGmFCefQZun4vGlYnEM-zBT2izkFbAALqAwAChcgYVu0jIy6KYF9jIAQ", "file_unique_id": "AgAD6gMAAoXIGFY", "file_size": 126039}, "document": {"file_name": "1.gif.mp4", "mime_type": "video/mp4", "thumb": {"file_id": "AAMCBQADGQEAAgEaYUJ59Bm6fi8aVicQz7MFPaLOQVsAAuoDAAKFyBhW7SMjLopgX2MBAAdtAAMgBA", "file_unique_id": "AQAD6gMAAoXIGFZy", "file_size": 12682, "width": 320, "height": 240}, "file_id": "CgACAgUAAxkBAAIBGmFCefQZun4vGlYnEM-zBT2izkFbAALqAwAChcgYVu0jIy6KYF9jIAQ", "file_unique_id": "AgAD6gMAAoXIGFY", "file_size": 126039}, "caption": "test"}
-    :param message:
-    :return:
-    """
-    chat_id = message.chat.id
-    cloud_piece = CloudPiece(chat_id)
-    if None in (cloud_piece.database_id, cloud_piece.access_token):
-        return SendMessage(chat_id, "database_id or access_token lack")
-
-    file_id = message.animation.file_id
-    file_info = await bot.get_file(file_id)
-    file_path = get_total_file_path(file_info.file_path)
-    if cloud_piece.video(file_path, message.caption):
-        return SendMessage(chat_id, "已存储")
+    result, url = cloud_piece.video(file_path, message.caption)
+    if result:
+        return SendMessage(chat_id, f"已存储, </br>[立即编辑]({url})", parse_mode="Markdown")
 
     return SendMessage(chat_id, "存储失败")
 
@@ -205,8 +187,9 @@ async def location_handler(message: Message):
     latitude = Degree.dd_to_dms(message.location.latitude)
     longitude = Degree.dd_to_dms(message.location.longitude)
     url = f"https://www.google.com/maps/place/{latitude}N+{longitude}E/"
-    if cloud_piece.maps(url, message.caption):
-        return SendMessage(chat_id, "已存储")
+    result, url = cloud_piece.maps(url, message.caption)
+    if result:
+        return SendMessage(chat_id, f"已存储, </br>[立即编辑]({url})", parse_mode="Markdown")
 
     return SendMessage(chat_id, "存储失败")
 
@@ -218,8 +201,9 @@ async def text_handler(message: Message):
     if None in (cloud_piece.database_id, cloud_piece.access_token):
         return SendMessage(chat_id, "database_id or access_token lack")
 
-    if cloud_piece.text(message.text):
-        return SendMessage(chat_id, "已存储")
+    result, url = cloud_piece.text(message.text)
+    if result:
+        return SendMessage(chat_id, f"已存储, </br>[立即编辑]({url})", parse_mode="Markdown")
 
     return SendMessage(chat_id, "存储失败")
 

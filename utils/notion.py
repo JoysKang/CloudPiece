@@ -132,7 +132,10 @@ class CloudPiece:
         
         return self.save(self.body)
 
-    def maps(self, url):
+    def maps(self, url, caption=""):
+        if caption:
+            self.text(caption, is_save=False)
+
         self.body["children"].append({
             "object": "block",
             "type": "embed",
@@ -146,11 +149,12 @@ class CloudPiece:
     def save(self, body):
         response = requests.post('https://api.notion.com/v1/pages', headers=self.headers,
                                  data=json.dumps(body))
+
         if response.status_code == 200:
-            return True
+            return True, json.loads(response.content).get('url')
 
         print(response.content)
-        return False
+        return False, ""
 
 
 def get_data(chat_id):
@@ -372,5 +376,5 @@ if __name__ == "__main__":
     chat_id = "682824243"
     cloud_piece = CloudPiece(chat_id)
     # cloud_piece.maps("https://www.google.com/maps/place/36%C2%B007'46.9%22N+113%C2%B008'29.2%22E")
-    # cloud_piece.text("test")
-    cloud_piece.video("https://", "text")
+    cloud_piece.text("test")
+    # cloud_piece.video("https://", "text")
