@@ -62,8 +62,9 @@ async def start(message: Message):
     更详细的教程请看 [使用说明](https://joys.notion.site/CloudPiece-d9c509b20b0d40d4a1076c991416fd2e)
     
     如果 CloudPiece 不能使你满意，你可以到 [github](https://github.com/JoysKang/CloudPiece/issues) 提 issues,
-    或发邮件至 licoricepiece@gmail.com, 
-    或者直接使用 /unbind 进行解绑，然后到拷贝的模板页，点击右上角的 Share 按钮，从里边移除 CloudPiece
+    或到[留言板](https://joys.notion.site/c144f89764564f928c31f162e0ff307a) 留言,
+    或发邮件至 licoricepieces@gmail.com, 
+    或直接使用 /unbind 进行解绑，然后到拷贝的模板页，点击右上角的 Share 按钮，从里边移除 CloudPiece。
     """
     chat_id = str(message.chat.id)
     return SendMessage(chat_id=chat_id, text=text, parse_mode="Markdown", disable_web_page_preview=True)
