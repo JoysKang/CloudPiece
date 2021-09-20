@@ -146,7 +146,7 @@ async def document_handler(message: Message):
     return SendMessage(chat_id, "存储失败")
 
 
-@dp.message_handler(content_types=ContentType.VIDEO | ContentType.ANIMATION)
+@dp.message_handler(content_types=ContentType.VIDEO or ContentType.ANIMATION)
 async def video_handler(message: Message):
     """
     {"message_id": 287, "from": {"id": 682824243, "is_bot": false, "first_name": "F", "last_name": "joys", "username": "joyskaren", "language_code": "zh-hans"}, "chat": {"id": 682824243, "first_name": "F", "last_name": "joys", "username": "joyskaren", "type": "private"}, "date": 1631746989, "video": {"duration": 14, "width": 416, "height": 640, "file_name": "1 (106).mp4", "mime_type": "video/mp4", "thumb": {"file_id": "AAMCBQADGQEAAgEfYUJ7rSeorGrhyuNAO7UoI1juc6wAAu4DAAKFyBhWmITq7CWOlKkBAAdtAAMgBA", "file_unique_id": "AQAD7gMAAoXIGFZy", "file_size": 11560, "width": 208, "height": 320}, "file_id": "BAACAgUAAxkBAAIBH2FCe60nqKxq4crjQDu1KCNY7nOsAALuAwAChcgYVpiE6uwljpSpIAQ", "file_unique_id": "AgAD7gMAAoXIGFY", "file_size": 5698704}, "caption": "视频"}
