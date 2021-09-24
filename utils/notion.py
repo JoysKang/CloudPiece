@@ -170,9 +170,9 @@ def get_data(chat_id):
     response = requests.post(
         f'https://api.notion.com/v1/databases/{relation_database_id}/query',
         headers=headers, data=_data)
-    # print(response.content)
     if response.status_code != 200:
-        return "", ""
+        print(response.content)
+        return "", "", ""
 
     content = json.loads(response.content)
     if len(content["results"]) <= 0:

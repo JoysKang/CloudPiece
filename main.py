@@ -75,16 +75,16 @@ async def bind(message: Message):
     """绑定"""
     username = message.chat.username
     chat_id = str(message.chat.id)
+    if not create(name=username, chat_id=chat_id):
+        return SendMessage(chat_id, "已绑定, 无需再次绑定")
+
     state = AES.encrypt(chat_id)  # 加密
     reply_message = f"[点击授权](https://api.notion.com/v1/oauth/authorize?owner=user" \
                     f"&client_id={CLIENT_ID}" \
                     f"&redirect_uri={REDIRECT_URI}" \
                     "&response_type=code" \
                     f"&state={state})"
-    if not create(name=username, chat_id=chat_id):
-        return SendMessage(chat_id, "已绑定", parse_mode="Markdown", disable_web_page_preview=True)
-
-    return SendMessage(chat_id, reply_message)
+    return SendMessage(chat_id, reply_message, parse_mode="Markdown", disable_web_page_preview=True)
 
 
 @dp.message_handler(commands=['unbind'])
