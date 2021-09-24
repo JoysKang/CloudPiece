@@ -1,10 +1,12 @@
 {
-  "relation_code": "secret_2QP",
-  "relation_database_id": "7a2",
-  "client_id": "3ee",
-  "client_secret": "secret_VG5",
-  "redirect_uri": "https://service-8",
-  "telegram_token": "191",
-  "key": "yuv",
-  "notion_version": "2021-08-16"
+  "relation_code": "secret_2QPxxx",
+  "relation_database_id": "7a2xxx",
+  "client_id": "4d2xxx",
+  "client_secret": "secret_AKHxxx",
+  "redirect_uri": "https://service-8poxxx.tencentcs.com/release/auth",
+  "telegram_token": "191:AAE-ApGxxx",
+  "key": "yuvjtdcK1fn!f%SN)&!",
+  "webhook_host": "https://service-8poxxx.tencentcs.com/release/release",
+  "notion_version": "2021-08-16",
+  "sentry_address": "https://fcdxxx"
 }
