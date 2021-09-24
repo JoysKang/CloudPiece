@@ -292,6 +292,7 @@ async def auth(request):
     chat_id = AES.decrypt(state)  # 解密
     update(chat_id=chat_id, access_token=access_token, database_id=database_id, code=code)
 
+    SendMessage(chat_id=chat_id, text="授权成功")
     return web.json_response({"message": "Success"})
 
 
