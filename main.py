@@ -54,12 +54,10 @@ unsupported = "暂不支持该消息类型的存储，目前仅支持文本、�
 async def start(message: Message):
     text = """
       欢迎使用【CloudPiece】      
-    CloudPiece 能够快速记录你的想法到 Notion 笔记中
+    CloudPiece 能够快速记录你的想法到 Notion 笔记中。快速记录，不流失任何一个灵感。
     1. 请拷贝 [模板](https://joys.notion.site/fa90a1d7e8404e1286f66941dafd4155) 到自己的 Notion 中 
     2. 使用 /bind 命令授权 CloudPiece 访问，在授权页面选择你刚刚拷贝的模板(注：错误的选择将无法正常使用 CloudPiece)
     3. 输入 test,你将收到 【已存储】的反馈，这时你的想法已经写入到 Notion，快去 Notion 看看吧~
-    
-    更详细的教程请看 [使用说明](https://joys.notion.site/CloudPiece-d9c509b20b0d40d4a1076c991416fd2e)
     
     如果 CloudPiece 不能使你满意，你可以到 [github](https://github.com/JoysKang/CloudPiece/issues) 提 issues,
     或到[留言板](https://joys.notion.site/c144f89764564f928c31f162e0ff307a) 留言,
