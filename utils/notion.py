@@ -10,29 +10,6 @@ relation_code = conf.get('relation_code')
 notion_version = conf.get('notion_version')
 
 
-def delete_relation(chat_id):
-    """删除记录"""
-    headers = {
-        'Authorization': f'Bearer {relation_code}',
-        'Notion-Version': f'{notion_version}',
-        'Content-Type': 'application/json',
-    }
-    data = {
-        "parent": {"database_id": relation_database_id},
-        "properties": {},
-        "archived": True
-    }
-
-    page_id = get_page_id(chat_id)
-    response = requests.patch(f'https://api.notion.com/v1/pages/{page_id}',
-                              headers=headers, data=json.dumps(data))
-    if response.status_code == 200:
-        return True
-
-    print(response.content)
-    return False
-
-
 class CloudPiece:
     """
     notion
@@ -74,9 +51,7 @@ class CloudPiece:
                     "url": url
                 }
             }
-        }
-        )
-        print(self.body)
+        })
         return self.save(self.body)
 
     def document(self, url, caption=""):
@@ -92,7 +67,6 @@ class CloudPiece:
                 }
             }
         })
-        print(self.body)
         return self.save(self.body)
 
     def image(self, url, caption=""):
@@ -108,7 +82,6 @@ class CloudPiece:
                 }
             }
         })
-        print(self.body)
         return self.save(self.body)
 
     def text(self, text, is_save=True):
@@ -126,10 +99,21 @@ class CloudPiece:
                 ]
             }
         })
-        print(self.body)
         if not is_save:
             return False
         
+        return self.save(self.body)
+
+    def bookmark(self, url):
+        self.text(url, is_save=False)
+        self.body["children"].append({
+            "object": "block",
+            "type": "bookmark",
+            "bookmark": {
+                "url": url
+            }
+        })
+
         return self.save(self.body)
 
     def maps(self, url, caption=""):
@@ -143,7 +127,6 @@ class CloudPiece:
                 "url": url
             }
         })
-        print(self.body)
         return self.save(self.body)
 
     def save(self, body):
@@ -153,7 +136,6 @@ class CloudPiece:
         if response.status_code == 200:
             return True, json.loads(response.content).get('url')
 
-        print(response.content)
         return False, ""
 
 
@@ -171,7 +153,6 @@ def get_data(chat_id):
         f'https://api.notion.com/v1/databases/{relation_database_id}/query',
         headers=headers, data=_data)
     if response.status_code != 200:
-        print(response.content)
         return "", "", ""
 
     content = json.loads(response.content)
@@ -283,7 +264,6 @@ def update(chat_id="", access_token="", database_id="", code=""):
     if response.status_code == 200:
         return True
 
-    print(response.content)
     return False
 
 
@@ -330,7 +310,28 @@ def create(name, chat_id=""):
     if response.status_code == 200:
         return True
 
-    print(response.content)
+    return False
+
+
+def delete_relation(chat_id):
+    """删除记录"""
+    headers = {
+        'Authorization': f'Bearer {relation_code}',
+        'Notion-Version': f'{notion_version}',
+        'Content-Type': 'application/json',
+    }
+    data = {
+        "parent": {"database_id": relation_database_id},
+        "properties": {},
+        "archived": True
+    }
+
+    page_id = get_page_id(chat_id)
+    response = requests.patch(f'https://api.notion.com/v1/pages/{page_id}',
+                              headers=headers, data=json.dumps(data))
+    if response.status_code == 200:
+        return True
+
     return False
 
 
@@ -376,5 +377,6 @@ if __name__ == "__main__":
     chat_id = "682824243"
     cloud_piece = CloudPiece(chat_id)
     # cloud_piece.maps("https://www.google.com/maps/place/36%C2%B007'46.9%22N+113%C2%B008'29.2%22E")
-    cloud_piece.text("test")
+    # cloud_piece.text("test")
+    cloud_piece.bookmark("https://juejin.cn/post/7013221168249307150")
     # cloud_piece.video("https://", "text")

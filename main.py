@@ -3,6 +3,7 @@ import base64
 
 import requests
 import sentry_sdk
+from sentry_sdk.integrations.aiohttp import AioHttpIntegration
 from aiohttp import web
 from aiogram import Bot
 from aiogram.types import Message, ContentType
@@ -26,11 +27,8 @@ AES = AESCipher(conf.get("key"))
 
 sentry_sdk.init(
     conf.get("sentry_address"),
-
-    # Set traces_sample_rate to 1.0 to capture 100%
-    # of transactions for performance monitoring.
-    # We recommend adjusting this value in production.
-    traces_sample_rate=1.0
+    traces_sample_rate=1.0,
+    integrations=[AioHttpIntegration()]
 )
 
 # webhook settings
@@ -223,6 +221,11 @@ async def text_handler(message: Message):
     if None in (cloud_piece.database_id, cloud_piece.access_token):
         return SendMessage(chat_id, "database_id or access_token lack")
 
+    if message.entities and message.entities[0].type == "url":  # 纯 url 记录为 bookmark
+        result, url = cloud_piece.bookmark(message.text)
+        if result:
+            return SendMessage(chat_id, f"已存储, [现在编辑]({url})", parse_mode="Markdown", disable_web_page_preview=True)
+
     result, url = cloud_piece.text(message.text)
     if result:
         return SendMessage(chat_id, f"已存储, [现在编辑]({url})", parse_mode="Markdown", disable_web_page_preview=True)
@@ -241,8 +244,6 @@ async def other_handler(message: Message):
     :param message:
     :return:
     """
-    print(message)
-    print(message.content_type)
     return SendMessage(message.chat.id, unsupported)
 
 
