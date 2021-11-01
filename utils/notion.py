@@ -156,10 +156,10 @@ def get_data(chat_id):
         return "", "", ""
 
     content = json.loads(response.content)
-    if len(content["results"]) <= 0:
+    try:
+        result = content["results"][0]
+    except IndexError:
         return None, None, None
-
-    result = content["results"][0]
     database_id = result["properties"]["DatabaseId"]["rich_text"][0]["plain_text"]
     access_token = result["properties"]["AccessToken"]["rich_text"][0]["plain_text"]
     page_id = result["id"]  # 存在 page_id 则说明当前 chat_id 已有记录，不需要重复写
@@ -327,6 +327,9 @@ def delete_relation(chat_id):
     }
 
     page_id = get_page_id(chat_id)
+    if not page_id:
+        return True
+
     response = requests.patch(f'https://api.notion.com/v1/pages/{page_id}',
                               headers=headers, data=json.dumps(data))
     if response.status_code == 200:
