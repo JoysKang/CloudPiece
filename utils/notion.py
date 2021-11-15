@@ -141,6 +141,7 @@ class CloudPiece:
 
 def get_data(chat_id):
     """根据 chat_id 获取 database_id、code"""
+    database_id, access_token, page_id = None, None, None
     _data = '{ "filter": { "or": [ { "property": "ChatId", "rich_text": {"equals": "' + str(chat_id) + '"}} ] } }'
     _data = _data.encode()
 
@@ -159,10 +160,16 @@ def get_data(chat_id):
     try:
         result = content["results"][0]
     except IndexError:
-        return None, None, None
-    database_id = result["properties"]["DatabaseId"]["rich_text"][0]["plain_text"]
-    access_token = result["properties"]["AccessToken"]["rich_text"][0]["plain_text"]
-    page_id = result["id"]  # 存在 page_id 则说明当前 chat_id 已有记录，不需要重复写
+        return database_id, access_token, page_id
+
+    database_id = result["properties"]["DatabaseId"]["rich_text"]
+    access_token = result["properties"]["AccessToken"]["rich_text"]
+
+    if database_id and access_token:
+        database_id = database_id[0]["plain_text"]
+        access_token = access_token[0]["plain_text"]
+        page_id = result["id"]  # 存在 page_id 则说明当前 chat_id 已有记录，不需要重复写
+
     return database_id, access_token, page_id
 
 
@@ -377,9 +384,10 @@ def get_database_id(access_token=""):
 
 
 if __name__ == "__main__":
-    chat_id = "682824243"
-    cloud_piece = CloudPiece(chat_id)
+    chat_id = "366052963"
+    # cloud_piece = CloudPiece(chat_id)
     # cloud_piece.maps("https://www.google.com/maps/place/36%C2%B007'46.9%22N+113%C2%B008'29.2%22E")
     # cloud_piece.text("test")
-    cloud_piece.bookmark("https://juejin.cn/post/7013221168249307150")
+    # cloud_piece.bookmark("https://juejin.cn/post/7013221168249307150")
     # cloud_piece.video("https://", "text")
+    _, _, page_id = get_data(chat_id)
