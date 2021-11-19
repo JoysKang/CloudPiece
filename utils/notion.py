@@ -39,6 +39,9 @@ class CloudPiece:
             "children": []
         }
 
+    def get_title(self):
+        pass
+
     def video(self, url, caption=""):
         if caption:
             self.text(caption, is_save=False)

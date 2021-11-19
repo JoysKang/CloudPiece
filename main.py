@@ -173,7 +173,6 @@ async def animation_handler(message: Message):
     :param message:
     :return:
     """
-    print(message)
     chat_id = message.chat.id
     cloud_piece = CloudPiece(chat_id)
     if None in (cloud_piece.database_id, cloud_piece.access_token):
@@ -254,10 +253,10 @@ async def on_startup(dp):
 async def on_shutdown(dp):
     logging.warning('Shutting down..')
 
-    await bot.delete_webhook()
+    # await bot.delete_webhook()
 
-    await dp.storage.close()
-    await dp.storage.wait_closed()
+    # await dp.storage.close()
+    # await dp.storage.wait_closed()
 
     logging.warning('Bye!')
 
