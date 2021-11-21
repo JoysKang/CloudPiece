@@ -112,7 +112,8 @@ async def photo_handler(message: Message):
     file_id = message.photo[-1].file_id
     file_info = await bot.get_file(file_id)
     file_path = get_total_file_path(file_info.file_path)
-    result, url = cloud_piece.image(file_path, message.caption)
+    cloud_piece.image(file_path, message.caption)
+    result, url = cloud_piece.save()
     if result:
         return SendMessage(chat_id, f"已存储, [现在编辑]({url})", parse_mode="Markdown", disable_web_page_preview=True)
 
@@ -137,7 +138,8 @@ async def document_handler(message: Message):
     file_id = message.document.file_id
     file_info = await bot.get_file(file_id)
     file_path = get_total_file_path(file_info.file_path)
-    result, url = cloud_piece.document(file_path, message.caption)
+    cloud_piece.document(file_path, message.caption)
+    result, url = cloud_piece.save()
     if result:
         return SendMessage(chat_id, f"已存储, [现在编辑]({url})", parse_mode="Markdown", disable_web_page_preview=True)
 
@@ -159,7 +161,8 @@ async def video_handler(message: Message):
     file_id = message.video.file_id
     file_info = await bot.get_file(file_id)
     file_path = get_total_file_path(file_info.file_path)
-    result, url = cloud_piece.video(file_path, message.caption)
+    cloud_piece.video(file_path, message.caption)
+    result, url = cloud_piece.save()
     if result:
         return SendMessage(chat_id, f"已存储, [现在编辑]({url})", parse_mode="Markdown", disable_web_page_preview=True)
 
@@ -181,7 +184,8 @@ async def animation_handler(message: Message):
     file_id = message.animation.file_id
     file_info = await bot.get_file(file_id)
     file_path = get_total_file_path(file_info.file_path)
-    result, url = cloud_piece.video(file_path, message.caption)
+    cloud_piece.video(file_path, message.caption)
+    result, url = cloud_piece.save()
     if result:
         return SendMessage(chat_id, f"已存储, [现在编辑]({url})", parse_mode="Markdown", disable_web_page_preview=True)
 
@@ -206,7 +210,8 @@ async def location_handler(message: Message):
     latitude = Degree.dd_to_dms(message.location.latitude)
     longitude = Degree.dd_to_dms(message.location.longitude)
     url = f"https://www.google.com/maps/place/{latitude}N+{longitude}E/"
-    result, url = cloud_piece.maps(url, message.caption)
+    cloud_piece.maps(url, message.caption)
+    result, url = cloud_piece.save()
     if result:
         return SendMessage(chat_id, f"已存储, [现在编辑]({url})", parse_mode="Markdown", disable_web_page_preview=True)
 
@@ -220,12 +225,21 @@ async def text_handler(message: Message):
     if None in (cloud_piece.database_id, cloud_piece.access_token):
         return SendMessage(chat_id, "database_id or access_token lack")
 
-    if message.entities and message.entities[0].type == "url":  # 纯 url 记录为 bookmark
-        result, url = cloud_piece.bookmark(message.text)
+    if message.entities:
+        offset = 0
+        for entity in message.entities:
+            if entity.type == "url":
+                cloud_piece.text(message.text[offset: entity.offset])  # 前面的文本
+                cloud_piece.bookmark(message.text[entity.offset: entity.length + entity.offset])
+            else:
+                cloud_piece.text(message.text[offset: entity.length + entity.offset])
+            offset = entity.length + entity.offset
+        result, url = cloud_piece.save()
         if result:
             return SendMessage(chat_id, f"已存储, [现在编辑]({url})", parse_mode="Markdown", disable_web_page_preview=True)
 
-    result, url = cloud_piece.text(message.text)
+    cloud_piece.text(message.text)
+    result, url = cloud_piece.save()
     if result:
         return SendMessage(chat_id, f"已存储, [现在编辑]({url})", parse_mode="Markdown", disable_web_page_preview=True)
 

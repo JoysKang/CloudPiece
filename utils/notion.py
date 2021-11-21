@@ -55,7 +55,6 @@ class CloudPiece:
                 }
             }
         })
-        return self.save(self.body)
 
     def document(self, url, caption=""):
         if caption:
@@ -70,7 +69,6 @@ class CloudPiece:
                 }
             }
         })
-        return self.save(self.body)
 
     def image(self, url, caption=""):
         if caption:
@@ -85,7 +83,6 @@ class CloudPiece:
                 }
             }
         })
-        return self.save(self.body)
 
     def text(self, text, is_save=True):
         self.body["children"].append({
@@ -102,10 +99,6 @@ class CloudPiece:
                 ]
             }
         })
-        if not is_save:
-            return False
-        
-        return self.save(self.body)
 
     def bookmark(self, url):
         self.text(url, is_save=False)
@@ -116,8 +109,6 @@ class CloudPiece:
                 "url": url
             }
         })
-
-        return self.save(self.body)
 
     def maps(self, url, caption=""):
         if caption:
@@ -130,11 +121,10 @@ class CloudPiece:
                 "url": url
             }
         })
-        return self.save(self.body)
 
-    def save(self, body):
+    def save(self):
         response = requests.post('https://api.notion.com/v1/pages', headers=self.headers,
-                                 data=json.dumps(body))
+                                 data=json.dumps(self.body))
 
         if response.status_code == 200:
             return True, json.loads(response.content).get('url')
