@@ -101,7 +101,6 @@ class CloudPiece:
         })
 
     def bookmark(self, url):
-        self.text(url, is_save=False)
         self.body["children"].append({
             "object": "block",
             "type": "bookmark",
