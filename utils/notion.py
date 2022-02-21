@@ -30,7 +30,7 @@ class CloudPiece:
                     "title": [
                         {
                             "text": {
-                                "content": ""
+                                "content": " "
                             }
                         }
                     ]
@@ -178,7 +178,7 @@ def write(database_id, code, text):
                 "title": [
                     {
                         "text": {
-                            "content": ""
+                            "content": " "
                         }
                     }
                 ]
