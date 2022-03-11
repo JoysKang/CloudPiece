@@ -4,7 +4,6 @@ import json
 def load_json(file_path="../conf.json"):
     try:
         with open(file_path, 'r') as file:
-            data = json.load(file)
-            return data
+            return json.load(file)
     except:
         return {}

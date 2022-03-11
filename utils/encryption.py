@@ -28,7 +28,7 @@ class AESCipher:
         return s + (self.bs - len(s.encode()) % self.bs) * chr(self.bs - len(s.encode()) % self.bs)
 
     def _unpad(self, s):
-        return s[:-ord(s[len(s) - 1:])]
+        return s[:-ord(s[-1:])]
 
 
 if __name__ == "__main__":

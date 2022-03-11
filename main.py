@@ -203,20 +203,6 @@ async def location_handler(message: Message):
     chat_id = message.chat.id
     return SendMessage(chat_id, unsupported)
 
-    cloud_piece = CloudPiece(chat_id)
-    if None in (cloud_piece.database_id, cloud_piece.access_token):
-        return SendMessage(chat_id, "database_id or access_token lack")
-
-    latitude = Degree.dd_to_dms(message.location.latitude)
-    longitude = Degree.dd_to_dms(message.location.longitude)
-    url = f"https://www.google.com/maps/place/{latitude}N+{longitude}E/"
-    cloud_piece.maps(url, message.caption)
-    result, url = cloud_piece.save()
-    if result:
-        return SendMessage(chat_id, f"已存储, [现在编辑]({url})", parse_mode="Markdown", disable_web_page_preview=True)
-
-    return SendMessage(chat_id, "存储失败")
-
 
 @dp.message_handler(content_types=ContentType.TEXT)
 async def text_handler(message: Message):

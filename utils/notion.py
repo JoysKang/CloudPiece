@@ -364,9 +364,7 @@ def get_database_id(access_token=""):
         'Notion-Version': f'{notion_version}',
         'Content-Type': 'application/json',
     }
-    response = requests.post(
-        f'https://api.notion.com/v1/search',
-        headers=headers)
+    response = requests.post('https://api.notion.com/v1/search', headers=headers)
     if response.status_code != 200:
         return "", ""
 
