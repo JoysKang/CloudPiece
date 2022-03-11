@@ -17,8 +17,7 @@ class Degree(object):
         degree = int(float(dd))
         minute = int((float(dd) - degree) * 60)
         second = round((float(dd) - degree - float(minute) / 60) * 3600, 2)
-        dms = str(degree) + '°' + str(minute) + '\'' + str(second) + "\""
-        return dms
+        return f'{degree}°{minute}' + '\'' + str(second) + "\""
 
     @staticmethod
     def dms_to_dd(degree, minute, second):
@@ -31,8 +30,7 @@ class Degree(object):
         Return:
             dd : 十进制度
         """
-        dd = degree + minute / 60 + second / 60 / 60
-        return dd
+        return degree + minute / 60 + second / 60 / 60
 
     @staticmethod
     def parse_dms(dms):
