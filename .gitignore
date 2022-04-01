@@ -107,3 +107,4 @@ runserver_local.sh
 nohup.out
 node_modules/
 conf.json
+index.js
