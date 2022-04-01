@@ -95,9 +95,7 @@ target/
 
 ### Django ###
 *.log
-*.pot
 *.pyc
-__pycache__/
 local_settings.py
 
 .env
@@ -107,4 +105,5 @@ local
 runserver_local.sh
 *.orig
 nohup.out
+node_modules/
 conf.json
