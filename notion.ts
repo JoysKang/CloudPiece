@@ -4,7 +4,12 @@ const Config = require("./conf.json")
 
 const relationNotion = new Client({ auth: Config.relationCode });
 
-export async function createRelation(username: string, chatId: string) {
+export async function createRelation(username: string, chatId: string): Promise<boolean> {
+    const [_, __, pageId] = await getDatabaseIdAndAccessToken(chatId)
+    if (pageId) {
+        return false
+    }
+
     const pageArgs = {
         "parent": {"database_id": Config.relationDatabaseId},
         "properties": {
@@ -265,10 +270,10 @@ export async function writeNotion(chatId: string, title: string, content: string
 }
 
 (async () => {
-    // const [databaseId, accessToken, pageId] = await getDatabaseIdAndAccessToken("682824243")
+    // const [databaseId, accessToken, pageId] = await getDatabaseIdAndAccessToken("682824244")
     // console.log(await writePage("", databaseId, accessToken, "Tuscan Kale", "Lacinato kale is a variety of kale with a long tradition in Italian cuisine, especially that of Tuscany. It is also known as Tuscan kale, Italian kale, dinosaur kale, kale, flat back kale, palm tree kale, or black Tuscan palm."))
 
-    // await createRelation("joys", "682824243")
-    // await updateRelation("682824243", "682824243", Config.relationDatabaseId, "joys")
-    await deleteRelation("682824243")
+    await createRelation("joys", "682824244")
+    // await updateRelation("682824244", "682824244", Config.relationDatabaseId, "joys")
+    // await deleteRelation("682824244")
 })();
