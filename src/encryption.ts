@@ -1,6 +1,6 @@
 const CryptoJS = require("crypto-js");
 
-const Config = require("./conf.json")
+const Config = require("../conf.json")
 
 
 export function encrypt(text: string) {

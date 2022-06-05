@@ -107,4 +107,4 @@ runserver_local.sh
 nohup.out
 node_modules/
 conf.json
-notion.js
+src/notion.js

@@ -1,11 +1,14 @@
 import {Telegraf} from 'telegraf'
-import {deleteRelation} from "./notion";
+const Koa = require('koa')
+const koaBody = require('koa-body')
+const safeCompare = require('safe-compare')
 
-const Config = require("./conf.json")
+const Config = require("../conf.json")
+const { createRelation, deleteRelation } = require("./notion")
 const { encrypt, decrypt } = require("./encryption")
-const { createRelation } = require("./notion")
 
-const token = process.env.BOT_TOKEN
+
+const token = Config.telegramToken
 if (token === undefined) {
     throw new Error('BOT_TOKEN must be provided!')
 }
@@ -39,7 +42,8 @@ bot.command('start', (ctx) => {
 
 // 绑定
 bot.command('bind', async (ctx) => {
-    const username = ctx.message.chat.username
+    // const username = ctx.message.chat.username
+    const username = ""
     const chat_id = ctx.message.chat.id
     const isCreated = await createRelation(username, chat_id)
     if (!isCreated) {
@@ -94,9 +98,23 @@ bot.on('inline_query', (ctx) => {
 
 // bot.launch()
 
+const secretPath = `/telegraf/${bot.secretPathComponent()}`
+
 // webhook
-bot.telegram.setWebhook('https://server.tld:8443/secret-path')
+bot.telegram.setWebhook(`${Config.webhookHost}${secretPath}`)
 
 // Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'))
-process.once('SIGTERM', () => bot.stop('SIGTERM'))
+// process.once('SIGINT', () => bot.stop('SIGINT'))
+// process.once('SIGTERM', () => bot.stop('SIGTERM'))
+
+const app = new Koa()
+app.use(koaBody())
+app.use(async (ctx, next) => {
+    if (safeCompare(secretPath, ctx.url)) {
+        await bot.handleUpdate(ctx.request.body)
+        ctx.status = 200
+        return
+    }
+    return next()
+})
+app.listen(3000)

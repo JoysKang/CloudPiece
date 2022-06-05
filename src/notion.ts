@@ -1,6 +1,6 @@
 const { Client } = require("@notionhq/client")
 
-const Config = require("./conf.json")
+const Config = require("../conf.json")
 
 const relationNotion = new Client({ auth: Config.relationCode });
 
