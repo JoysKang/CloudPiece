@@ -116,4 +116,4 @@ app.use(async (ctx, next) => {
     }
     return next()
 })
-app.listen(3000)
+app.listen(process.env.PORT || 3000)
