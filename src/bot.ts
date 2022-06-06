@@ -46,7 +46,7 @@ bot.command('bind', async (ctx) => {
     const chat_id = ctx.message.chat.id
     const isCreated = await createRelation(username, chat_id)
     if (!isCreated) {
-        return ctx.reply('已绑定, 无需再次绑定')
+        return ctx.reply('already bound, no need to bind again')
     }
 
     const state = encrypt(ctx.message.chat.id)
