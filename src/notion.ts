@@ -1,8 +1,6 @@
 const { Client } = require("@notionhq/client")
 
-const Config = require("../conf.json")
-
-const relationNotion = new Client({ auth: Config.relationCode });
+const relationNotion = new Client({ auth: process.env.relationCode });
 
 export async function createRelation(username: string, chatId: string): Promise<boolean> {
     const [_, __, pageId] = await getDatabaseIdAndAccessToken(chatId)
@@ -11,7 +9,7 @@ export async function createRelation(username: string, chatId: string): Promise<
     }
 
     const pageArgs = {
-        "parent": {"database_id": Config.relationDatabaseId},
+        "parent": {"database_id": process.env.relationDatabaseId},
         "properties": {
             "Name": {
                 "title": [
@@ -53,7 +51,7 @@ export async function deleteRelation(chatId: string) {
 export async function updateRelation(chatId: string, accessToken: string, databaseId: string, code: string) {
     const [_, __, pageId] = await getDatabaseIdAndAccessToken(chatId)
     const pageArgs = {
-        "parent": {"database_id": Config.relationDatabaseId},
+        "parent": {"database_id": process.env.relationDatabaseId},
         "properties": {}
     }
     if (accessToken) {
@@ -99,7 +97,7 @@ export async function updateRelation(chatId: string, accessToken: string, databa
 // 获取用户基础数据
 async function getDatabaseIdAndAccessToken(chatId: string): Promise<string[]> {
     const response = await relationNotion.databases.query({
-        database_id: Config.relationDatabaseId,
+        database_id: process.env.relationDatabaseId,
         filter: {
             or: [
                 {
@@ -269,11 +267,11 @@ export async function writeNotion(chatId: string, title: string, content: string
     return await writePage(chatId, databaseId, accessToken, title, content)
 }
 
-(async () => {
-    // const [databaseId, accessToken, pageId] = await getDatabaseIdAndAccessToken("682824244")
-    // console.log(await writePage("", databaseId, accessToken, "Tuscan Kale", "Lacinato kale is a variety of kale with a long tradition in Italian cuisine, especially that of Tuscany. It is also known as Tuscan kale, Italian kale, dinosaur kale, kale, flat back kale, palm tree kale, or black Tuscan palm."))
+// (async () => {
+//     // const [databaseId, accessToken, pageId] = await getDatabaseIdAndAccessToken("682824244")
+//     // console.log(await writePage("", databaseId, accessToken, "Tuscan Kale", "Lacinato kale is a variety of kale with a long tradition in Italian cuisine, especially that of Tuscany. It is also known as Tuscan kale, Italian kale, dinosaur kale, kale, flat back kale, palm tree kale, or black Tuscan palm."))
 
-    await createRelation("joys", "682824244")
-    // await updateRelation("682824244", "682824244", Config.relationDatabaseId, "joys")
-    // await deleteRelation("682824244")
-})();
+//     await createRelation("joys", "682824244")
+//     // await updateRelation("682824244", "682824244", process.env.relationDatabaseId, "joys")
+//     // await deleteRelation("682824244")
+// })();

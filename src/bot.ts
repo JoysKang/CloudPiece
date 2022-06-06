@@ -3,12 +3,11 @@ const Koa = require('koa')
 const koaBody = require('koa-body')
 const safeCompare = require('safe-compare')
 
-const Config = require("../conf.json")
 const { createRelation, deleteRelation } = require("./notion")
 const { encrypt, decrypt } = require("./encryption")
 
 
-const token = Config.telegramToken
+const token = process.env.telegramToken
 if (token === undefined) {
     throw new Error('BOT_TOKEN must be provided!')
 }
@@ -51,8 +50,8 @@ bot.command('bind', async (ctx) => {
     }
 
     const state = encrypt(ctx.message.chat.id)
-    const text = "[点击授权](https://api.notion.com/v1/oauth/authorize?owner=user&client_id=" +
-        Config.clientId + "&redirect_uri=" + Config.redirectUri + "&response_type=code&state=" + state
+    const text = "[点击授权](https://api.notion.com/v1/oauth/authorize?owner=user&client_id=" + 
+    process.env.clientId + "&redirect_uri=" + process.env.redirectUri + "&response_type=code&state=" + state
     await ctx.telegram.sendMessage(ctx.message.chat.id, text, {
         parse_mode: 'Markdown',
         disable_web_page_preview: true,
@@ -101,7 +100,7 @@ bot.on('inline_query', (ctx) => {
 const secretPath = `/telegraf/${bot.secretPathComponent()}`
 
 // webhook
-bot.telegram.setWebhook(`${Config.webhookHost}${secretPath}`)
+bot.telegram.setWebhook(`${process.env.webhookHost}${secretPath}`)
 
 // Enable graceful stop
 // process.once('SIGINT', () => bot.stop('SIGINT'))
