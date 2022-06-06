@@ -1,4 +1,11 @@
 {
+  "name": "cloud-piece",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "node dist/bot.js",
+    "build": "tsc src/*.ts --outDir dist"
+  },
   "dependencies": {
     "@notionhq/client": "^1.0.4",
     "crypto-js": "^4.1.1",
