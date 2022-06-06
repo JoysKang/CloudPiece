@@ -56,6 +56,8 @@ bot.command('bind', async (ctx) => {
         parse_mode: 'Markdown',
         disable_web_page_preview: true,
     })
+    // Using context shortcut
+    ctx.leaveChat()
 })
 
 // 解绑
@@ -68,6 +70,8 @@ bot.command('unbind', async (ctx) => {
         parse_mode: 'Markdown',
         disable_web_page_preview: true,
     })
+    // Using context shortcut
+    ctx.leaveChat()
 })
 
 bot.on('text', (ctx) => {
