@@ -310,5 +310,4 @@ executor = set_webhook(
     skip_updates=True,
     web_app=app
 )
-executor.run_app(host=WEBAPP_HOST,
-                 port=WEBAPP_PORT)
+executor.run_app(host=WEBAPP_HOST)
