@@ -4,3 +4,4 @@ aiogram==2.14.3
 aiohttp==3.7.4.post0
 pycryptodome==3.10.1
 sentry_sdk==1.4.1
+gunicorn==20.1.0

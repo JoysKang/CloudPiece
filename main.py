@@ -298,19 +298,18 @@ async def root(request):
     return web.json_response({"message": "Success"})
 
 
-if __name__ == '__main__':
-    # web_app
-    web_app = web.Application()
-    web_app.add_routes([web.get('/', root)])
-    web_app.add_routes([web.get('/auth', auth)])
+# start
+app = web.Application()
+app.add_routes([web.get('/', root)])
+app.add_routes([web.get('/auth', auth)])
 
-    executor = set_webhook(
-        dispatcher=dp,
-        webhook_path=WEBHOOK_PATH,
-        on_startup=on_startup,
-        on_shutdown=on_shutdown,
-        skip_updates=True,
-        web_app=web_app
-    )
-    executor.run_app(host=WEBAPP_HOST,
-                     port=WEBAPP_PORT)
+executor = set_webhook(
+    dispatcher=dp,
+    webhook_path=WEBHOOK_PATH,
+    on_startup=on_startup,
+    on_shutdown=on_shutdown,
+    skip_updates=True,
+    web_app=app
+)
+executor.run_app(host=WEBAPP_HOST,
+                 port=WEBAPP_PORT)
