@@ -1,10 +1,10 @@
 import json
+import os
 
 import requests
 
-from utils.conf import load_json
 
-conf = load_json("./conf.json")
+conf = os.environ
 relation_database_id = conf.get('relation_database_id')
 relation_code = conf.get('relation_code')
 notion_version = conf.get('notion_version')

@@ -1,5 +1,6 @@
 import logging
 import base64
+import os
 
 import requests
 import sentry_sdk
@@ -12,13 +13,11 @@ from aiogram.dispatcher import Dispatcher
 from aiogram.dispatcher.webhook import SendMessage
 from aiogram.utils.executor import set_webhook
 
-from utils.conf import load_json
 from utils.notion import create, update, get_database_id, delete_relation, CloudPiece
 from utils.encryption import AESCipher
-from utils.latitude import Degree
 from utils.telegram import get_total_file_path
 
-conf = load_json("./conf.json")
+conf = os.environ
 API_TOKEN = conf.get("telegram_token")
 CLIENT_ID = conf.get("client_id")
 CLIENT_SECRET = conf.get("client_secret")
