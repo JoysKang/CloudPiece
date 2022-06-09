@@ -1,1 +1,1 @@
-web: gunicorn main:app -k aiohttp.worker.GunicornWebWorker -b 0.0.0.0:9000
+web: gunicorn main:app -w 1 -k aiohttp.worker.GunicornWebWorker -b 0.0.0.0:9000
