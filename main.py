@@ -312,4 +312,5 @@ if __name__ == '__main__':
         skip_updates=True,
         web_app=app
     )
-    executor.run_app(host=WEBAPP_HOST)
+    executor.run_app(host=WEBAPP_HOST,
+                     port=WEBAPP_PORT)
